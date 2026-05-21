@@ -1,0 +1,16 @@
+[project]
+name = "osaka-ai-hub"
+version = "0.1.0"
+description = "Unified AI API Hub: LLM, TTS, Digital Human, ASR, Voice Clone, 3D Generation"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "httpx",
+    "torch",
+    "torchvision",
+    "torchaudio",
+]
+
+[project.scripts]
+osaka-ai-hub = "api.main:app"
