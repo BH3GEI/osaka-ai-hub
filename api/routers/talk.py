@@ -60,7 +60,8 @@ async def talk(
     except Exception as e:
         raise HTTPException(500, f"Generation failed: {e}")
 
-    safe_header = llm_text[:200].encode("ascii", errors="ignore").decode("ascii")
+    import re
+    safe_header = re.sub(r'[^\x20-\x7E]', '', llm_text[:200])
     return FileResponse(
         video_path, media_type="video/mp4", filename="talk.mp4",
         headers={"X-LLM-Response": safe_header},

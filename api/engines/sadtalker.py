@@ -2,13 +2,17 @@ import os
 import sys
 import shutil
 import uuid
+import subprocess
+import json
 import torch
 from pathlib import Path
 from time import strftime
+from threading import Semaphore
 
 from api.config import SADTALKER_DIR, RESULT_DIR, UPLOAD_DIR
 
 _models = {}
+_generate_sem = Semaphore(1)
 
 
 def _load():
@@ -33,8 +37,17 @@ def _load():
     return _models
 
 
-def _unload(_):
-    _models.clear()
+def _unload(m):
+    for key in list(_models.keys()):
+        obj = _models.pop(key, None)
+        if hasattr(obj, 'parameters'):
+            for p in obj.parameters():
+                del p
+        del obj
+    import gc
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
     print("[SadTalker] Models unloaded")
 
 
@@ -49,6 +62,10 @@ def unloader(m):
 def generate(image_path: str, audio_path: str, models: dict) -> str:
     image_path = os.path.abspath(image_path)
     audio_path = os.path.abspath(audio_path)
+
+    if not _generate_sem.acquire(timeout=30):
+        raise RuntimeError("SadTalker is busy, try again later")
+
     prev_cwd = os.getcwd()
     os.chdir(str(SADTALKER_DIR))
     sys.path.insert(0, str(SADTALKER_DIR))
@@ -85,3 +102,4 @@ def generate(image_path: str, audio_path: str, models: dict) -> str:
         return output_path
     finally:
         os.chdir(prev_cwd)
+        _generate_sem.release()
