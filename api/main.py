@@ -1,6 +1,6 @@
 import torch
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from pathlib import Path
 
 from api.config import (
@@ -9,9 +9,14 @@ from api.config import (
 )
 from api.utils.model_manager import ModelManager
 from api.utils.cleanup import AutoCleaner
+from api.auth import verify
 from api.routers import chat, tts, generate, talk
 
-app = FastAPI(title="Osaka AI Hub", description="Unified AI API: LLM, TTS, Digital Human")
+app = FastAPI(
+    title="Osaka AI Hub",
+    description="Unified AI API: LLM, TTS, Digital Human",
+    dependencies=[Depends(verify)],
+)
 
 mm = ModelManager(evict_interval=60)
 
