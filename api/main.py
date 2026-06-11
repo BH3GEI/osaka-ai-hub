@@ -71,7 +71,7 @@ async def health():
 async def list_services():
     return {
         "endpoints": {
-            "POST /api/chat": "LLM chat (Qwen3.6-27B via Ollama). Params: message, model, stream",
+            "POST /api/chat": "LLM chat (Qwen3.6-27B via Ollama, vision-capable). Params: message, model, stream, image (optional file upload for VLM)",
             "POST /api/tts": "Text-to-Speech (Kokoro, 14 voices). Params: text, voice",
             "POST /api/generate": "Digital human video. Params: text|audio, image, voice, engine(sadtalker|musetalk)",
             "POST /api/talk": "Full pipeline: LLM→TTS→Digital Human. Params: message, model, voice, engine, image",
